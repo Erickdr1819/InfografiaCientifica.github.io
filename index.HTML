@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infografía Interactiva: Aprendizaje STEM</title>
+  <style>
+    /* =========================================================
+       1. VARIABLES Y REINICIO (RESET)
+       ========================================================= */
+    :root {
+      /* Colores definidos en el requerimiento */
+      --color-green: #1cfb36;
+      --color-blue: #3e15ec;
+      --color-orange: #ffa800;
+      
+      /* Colores generales de la UI */
+      --text-dark: #1f2937;
+      --text-light: #4b5563;
+      --bg-body: #f3f4f6;
+      --bg-card: #ffffff;
+      
+      /* Tipografía limpia y moderna (Sans-serif) */
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-body);
+      color: var(--text-dark);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .infographic-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .main-title {
+      text-align: center;
+      margin-bottom: 3rem;
+      font-size: 2rem;
+      color: var(--color-blue);
+    }
+
+    /* =========================================================
+       2. ESTRUCTURA DE LA LISTA Y TARJETAS (MOBILE FIRST)
+       ========================================================= */
+    .interactive-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem; /* Espaciado generoso entre elementos */
+    }
+
+    .list-item {
+      background-color: var(--bg-card);
+      border-radius: 16px;
+      /* Área táctil amplia y padding generoso */
+      padding: 1.5rem; 
+      display: flex;
+      flex-direction: column; /* Mobile: Una columna */
+      gap: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      /* Transición general fluida */
+      transition: all 0.4s ease-in-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .list-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Diseño responsivo a partir de Tablets/Desktop */
+    @media (min-width: 768px) {
+      .list-item {
+        flex-direction: row; /* Desktop: Dos columnas */
+        align-items: center;
+        padding: 2rem;
+      }
+    }
+
+    /* =========================================================
+       3. EFECTO #18: DESPLAZAMIENTO/ROTACIÓN DEL ICONO
+       ========================================================= */
+    .icon-column {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .icon-wrapper {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      z-index: 1; /* Asegura que el emoji esté por encima de los semicírculos */
+    }
+
+    /* Semicírculo izquierdo (Siempre visible) */
+    .icon-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 50%; 
+      height: 100%;
+      background-color: var(--item-color);
+      border-radius: 70px 0 0 70px;
+      z-index: -1;
+      opacity: 0.2; /* Suave para que contraste el emoji */
+      transition: all 0.4s ease-in-out;
+    }
+
+    /* Semicírculo derecho (Oculto inicialmente rotado en Y) */
+    .icon-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0; 
+      left: 50%;
+      width: 50%; 
+      height: 100%;
+      background-color: var(--item-color);
+      border-radius: 0 70px 70px 0;
+      transform-origin: left center;
+      transform: rotateY(-90deg); /* 90 grados oculta la capa hacia el fondo */
+      
+      /* COMENTARIO DIDÁCTICO: 
+         Aquí controlas la VELOCIDAD DE ROTACIÓN del semicírculo. 
+         Cambia "0.4s" por un valor más alto (ej. "0.8s") para hacerlo más lento. */
+      transition: transform 0.4s ease-in-out, background-color 0.4s ease;
+      z-index: -1;
+      opacity: 0.2;
+    }
+
+    /* Acción interactiva del icono al hacer :hover en toda la tarjeta */
+    .list-item:hover .icon-wrapper::after {
+      /* Rotamos a 0 para "cerrar la puerta" y completar el círculo visual */
+      transform: rotateY(0deg); 
+    }
+    .list-item:hover .icon-wrapper::before,
+    .list-item:hover .icon-wrapper::after {
+      opacity: 0.8; /* Intensificamos el color al interactuar */
+    }
+
+    /* =========================================================
+       4. EFECTO #24: LÍNEA DE MENÚ ONDULADA
+       ========================================================= */
+    .text-column {
+      flex-grow: 1;
+    }
+
+    .item-title {
+      display: inline-block; /* Para que la onda abarque solo el texto */
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+      
+      /* Configuración inicial del fondo (línea invisible) */
+      background-repeat: repeat-x;
+      background-position: 0% 100%;
+      background-size: 20px 0px; /* Altura 0 para ocultarla */
+      padding-bottom: 0px;
+      
+      /* COMENTARIO DIDÁCTICO: 
+         Aquí se asigna dinámicamente el SVG en base64 de la línea ondulada. 
+         La variable --wave-svg se define más abajo para cada elemento de la lista. */
+      background-image: var(--wave-svg);
+      
+      /* Transición para que aparezca "suavemente" emergiendo desde abajo */
+      transition: background-size 0.4s ease-in-out, padding-bottom 0.4s ease-in-out;
+    }
+
+    .item-description {
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+
+    /* Acción interactiva de la onda al hacer :hover */
+    .list-item:hover .item-title {
+      background-size: 20px 6px; /* Altura visible de la onda */
+      padding-bottom: 8px; /* Damos espacio para que el texto no toque la onda */
+      /* Animamos el fondo para dar el efecto de movimiento horizontal */
+      animation: wave-move 1s linear infinite;
+    }
+
+    /* Keyframes para desplazar la posición del patrón SVG horizontalmente */
+    @keyframes wave-move {
+      0% { background-position: 0% 100%; }
+      100% { background-position: 20px 100%; } /* 20px es el ancho del viewBox del SVG */
+    }
+
+    /* =========================================================
+       5. ASIGNACIÓN DE COLORES Y SVG (BASE64) POR ELEMENTO
+       ========================================================= */
+    /* COMENTARIO DIDÁCTICO: 
+       Para cambiar la línea ondulada, debes actualizar la URL codificada en Base64.
+       El código base es: <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 6'><path fill='none' stroke='TU_COLOR_HEX' stroke-width='2' stroke-linecap='round' d='M0 3 Q 5 0 10 3 T 20 3'/></svg>
+       Luego lo conviertes a Base64. 
+    */
+
+    /* Elementos Azules (#3e15ec) */
+    .theme-blue {
+      --item-color: var(--color-blue);
+      --wave-svg: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCA2Ij48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMzZTE1ZWMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBkPSJNMCAzIFEgNSAwIDEwIDMgVCAyMCAzIi8+PC9zdmc+');
+    }
+
+    /* Elementos Naranjas (#ffa800) */
+    .theme-orange {
+      --item-color: var(--color-orange);
+      --wave-svg: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCA2Ij48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmE4MDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBkPSJNMCAzIFEgNSAwIDEwIDMgVCAyMCAzIi8+PC9zdmc+');
+    }
+
+    /* Elementos Verdes (#1cfb36) */
+    .theme-green {
+      --item-color: var(--color-green);
+      --wave-svg: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCA2Ij48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMxY2ZiMzYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBkPSJNMCAzIFEgNSAwIDEwIDMgVCAyMCAzIi8+PC9zdmc+');
+    }
+
+    /* =========================================================
+       6. FOOTER
+       ========================================================= */
+    .site-footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e5e7eb;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+    
+    .site-footer p {
+      margin-bottom: 0.5rem;
+    }
+    
+    .site-footer strong {
+      color: var(--text-dark);
+    }
+
+  </style>
+</head>
+<body>
+
+  <main class="infographic-container">
+    <h1 class="main-title">Top 5: Aprendizaje Activo STEM</h1>
+    
+    <ol class="interactive-list">
+      
+      <!-- Ítem 1 -->
+      <li class="list-item theme-blue">
+        <div class="icon-column">
+          <div class="icon-wrapper">
+            <span class="emoji">🧩</span>
+          </div>
+        </div>
+        <div class="text-column">
+          <h2 class="item-title">1. La Pragmática Creativa como Nuevo Marco</h2>
+          <p class="item-description">Este concepto unifica la filosofía pragmatista, los estudios de ciencia y tecnología (STS), y la práctica del arte y el diseño para transformar la educación STEM. Propone que la educación no solo debe transmitir conocimientos fijos, sino promover un aprendizaje iterativo y activo donde los estudiantes construyen habilidades mediante la práctica, la colaboración y la experimentación.</p>
+        </div>
+      </li>
+
+      <!-- Ítem 2 -->
+      <li class="list-item theme-orange">
+        <div class="icon-column">
+          <div class="icon-wrapper">
+            <span class="emoji">🌪️</span>
+          </div>
+        </div>
+        <div class="text-column">
+          <h2 class="item-title">2. Aceptar un Mundo Complejo e Impredecible</h2>
+          <p class="item-description">Los problemas contemporáneos (como el cambio climático o las crisis ecológicas) revelan las limitaciones de los modelos ortodoxos basados en el reduccionismo. Las soluciones simples y aisladas ya no son suficientes. Por ello, se propone abandonar la visión de la ciencia como una certeza absoluta y predecible, adoptando un "paradigma científico expandido" que abraza el pensamiento sistémico, holístico y transdisciplinario.</p>
+        </div>
+      </li>
+
+      <!-- Ítem 3 -->
+      <li class="list-item theme-green">
+        <div class="icon-column">
+          <div class="icon-wrapper">
+            <span class="emoji">🚀</span>
+          </div>
+        </div>
+        <div class="text-column">
+          <h2 class="item-title">3. El Conocimiento como Acción Performativa (Agencia)</h2>
+          <p class="item-description">Saber algo no es simplemente acumular la representación estática de un hecho, sino un logro creativo que se construye mediante la interacción con el mundo. Este modelo "performativo" otorga a los estudiantes un rol central: ya no son espectadores pasivos que asimilan información, sino agentes activos con la capacidad creativa para co-crear realidades y transformar la sociedad a través de intervenciones prácticas.</p>
+        </div>
+      </li>
+
+      <!-- Ítem 4 -->
+      <li class="list-item theme-blue">
+        <div class="icon-column">
+          <div class="icon-wrapper">
+            <span class="emoji">🛠️</span>
+          </div>
+        </div>
+        <div class="text-column">
+          <h2 class="item-title">4. Metodologías de Aprendizaje Activo para Problemas Reales</h2>
+          <p class="item-description">Para navegar la complejidad, la educación STEM debe ir mucho más allá de la memorización. El texto destaca la eficacia de enfoques como el aprendizaje basado en problemas y proyectos (PBL), la mentalidad maker (aprender haciendo), el pensamiento de diseño y los entornos lúdicos. Estas pedagogías conectan disciplinas y dotan a los estudiantes de herramientas críticas, creativas y colaborativas para enfrentar escenarios del mundo real.</p>
+        </div>
+      </li>
+
+      <!-- Ítem 5 -->
+      <li class="list-item theme-orange">
+        <div class="icon-column">
+          <div class="icon-wrapper">
+            <span class="emoji">🎨</span>
+          </div>
+        </div>
+        <div class="text-column">
+          <h2 class="item-title">5. La Evolución del Rol Docente a "Diseñador de Experiencias"</h2>
+          <p class="item-description">La implementación del aprendizaje activo requiere transformar el papel del educador. Los profesores deben dejar de ser los expertos que simplemente imparten conocimientos para convertirse en "diseñadores de aprendizaje" que facilitan el diálogo, la exploración y la experimentación. Esto presenta retos importantes, ya que requiere superar métodos de enseñanza tradicionales, vencer inercias institucionales y reestructurar los sistemas de evaluación para que valoren el proceso, el pensamiento crítico y la colaboración.</p>
+        </div>
+      </li>
+
+    </ol>
+
+    <!-- Footer Solicitado -->
+    <footer class="site-footer">
+      <p><strong>Fuente:</strong> Creative Pragmatics for Active Learning in STEM Education - DOI: /10.1007/978-3-031-78720-1_1</p>
+      <p><strong>Diseñado por:</strong> Erick Delgado Rojas</p>
+    </footer>
+
+  </main>
+
+</body>
+</html>
